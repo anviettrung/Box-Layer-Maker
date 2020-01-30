@@ -5,7 +5,12 @@ using UnityEngine;
 public class MatrixInt2D : MonoBehaviour
 {
 	public int[,] data;
-	 
+
+	public void Awake()
+	{
+		RenewData();
+	}
+
 	public void RenewData()
 	{
 		data = new int[20, 20];
