@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CubeList : MonoBehaviour
+public class Brush : MonoBehaviour
 {
 	[System.Serializable]
 	public class CubeType
@@ -23,22 +23,32 @@ public class CubeList : MonoBehaviour
 		}
 	}
 
+	[System.Serializable]
+	public enum BrushType
+	{
+		OneCube,
+		OneRow,
+		OneColumn
+	}
+
+	public BrushType brush;
+
 	public List<CubeType> list = new List<CubeType>();
-	protected int selectingTypeIndex = 0;
+	protected int selectingCubeTypeIndex = 0;
 	public CubeType selectingCubeType {
 		get {
-			return list[selectingTypeIndex];
+			return list[selectingCubeTypeIndex];
 		}
 	}
 
-	public void SelectType(int x)
+	public void SelectCubeType(int x)
 	{
-		selectingTypeIndex = x;
+		selectingCubeTypeIndex = x;
 	}
 
-	public int GetSelectingTypeIndex()
+	public int GetSelectingCubeTypeIndex()
 	{
-		return selectingTypeIndex;
+		return selectingCubeTypeIndex;
 	}
 
 	public void AddNewCubeType()
@@ -49,9 +59,9 @@ public class CubeList : MonoBehaviour
 	public void RemoveSelectingCubeType()
 	{ 
 		if (list.Count > 1) {
-			list.RemoveAt(selectingTypeIndex);
-			if (selectingTypeIndex >= list.Count)
-				selectingTypeIndex--;
+			list.RemoveAt(selectingCubeTypeIndex);
+			if (selectingCubeTypeIndex >= list.Count)
+				selectingCubeTypeIndex--;
 		}
 	}
 

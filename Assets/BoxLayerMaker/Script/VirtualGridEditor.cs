@@ -17,11 +17,26 @@ public class VirtualGridEditor : Editor
 	private void OnSceneGUI()
 	{
 		if (Event.current.type == EventType.MouseDown && Event.current.button == 0) {
+			// ???
 			Vector3 mousePosition = Event.current.mousePosition;
 			Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
 			mousePosition = ray.origin;
+			Vector2Int mouseCoord = mTarget.GetCoordByPosition(mousePosition);
 
-			mTarget.ClickCell(mTarget.GetCoordByPosition(mousePosition));
+			if (mTarget.IsMouseInGrid(mouseCoord.x, mouseCoord.y)) {
+
+				switch (mTarget.brushInfo.brush) {
+					case Brush.BrushType.OneCube:
+						mTarget.ActionDrawOneCube(mouseCoord);
+						break;
+					case Brush.BrushType.OneRow:
+						mTarget.ActionDrawOneRow(mouseCoord);
+						break;
+					case Brush.BrushType.OneColumn:
+						mTarget.ActionDrawOneColumn(mouseCoord);
+						break;
+				}
+			}
 		}
 	}
 

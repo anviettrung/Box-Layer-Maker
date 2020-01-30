@@ -3,20 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(CubeList))]
-public class CubeListEditor : Editor
+[CustomEditor(typeof(Brush))]
+public class BrushEditor : Editor
 {
-	CubeList mTarget;
+	Brush mTarget;
 	Color defaultBackgroundGUIColor;
 
 	private void Awake()
 	{
-		mTarget = (CubeList)target;
+		mTarget = (Brush)target;
 		defaultBackgroundGUIColor = GUI.backgroundColor;
 	}
 
 	public override void OnInspectorGUI()
 	{
+		// ------------------------------------------------------------------------
+		// Rrush Type enum dropdown
+
+		serializedObject.Update();
+
+		mTarget.brush = (Brush.BrushType)EditorGUILayout.EnumPopup("Brush", mTarget.brush);
+
+		serializedObject.ApplyModifiedProperties();
+
+		// ------------------------------------------------------------------------
+
+		GUILayout.Space(10);
+
 		// ------------------------------------------------------------------------
 		// Add/remove on list
 		GUILayout.BeginHorizontal();
@@ -40,9 +53,9 @@ public class CubeListEditor : Editor
 
 			GUILayout.BeginHorizontal();
 
-			if (mTarget.GetSelectingTypeIndex() != i) {
+			if (mTarget.GetSelectingCubeTypeIndex() != i) {
 				if (GUILayout.Button("o", GUILayout.Width(15), GUILayout.Height(15))) {
-					mTarget.SelectType(i);
+					mTarget.SelectCubeType(i);
 				}
 			} else {
 				GUILayout.Space(19);
