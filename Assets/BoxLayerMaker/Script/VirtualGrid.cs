@@ -1,37 +1,43 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
+using System.IO;
 using UnityEngine;
+
 
 public class VirtualGrid : MonoBehaviour
 {
 	public Color gridLineColor = Color.green;
 	public Brush brushInfo;
+	public Layer2D activeLayer;
 
-	public MatrixInt2D matrix;
+	public Layer2D[] allLayers;
+
+	public string exportPathFromResources;
 
 	void OnDrawGizmos()
-	{
-		if (matrix == null) return;
+	{ 
+		if (activeLayer == null) return;
 		 
-		for (int x = 0; x < matrix.Width; x++) {
-			for (int y = 0; y < matrix.Height; y++) {
-				Brush.CubeType t = brushInfo.FindCubeTypeByID(matrix.data[x,y]);
-				matrix.data[x, y] = t.ID; // if not found then setting data to first cubetype id
+		for (int x = 0; x < activeLayer.Width; x++) {
+			for (int y = 0; y < activeLayer.Height; y++) {
+				Brush.CubeType t = brushInfo.FindCubeTypeByID(activeLayer.Get(x,y));
+				activeLayer.Set(x, y, t.ID); // if not found then setting data to first cubetype id
 				Gizmos.color = t.guiColor;
 				Gizmos.DrawCube(new Vector3(x+0.5f, -y-0.5f, 0f), new Vector3(1, 1, 1));
 			}
 		}
 
 		// Draw horizontal line
-		for (int i = 0; i > -(matrix.Height + 1); i--) {
+		for (int i = 0; i > -(activeLayer.Height + 1); i--) {
 			Gizmos.color = gridLineColor;
-			Gizmos.DrawLine(new Vector3(0, i, 0), new Vector3(matrix.Width, i, 0));
+			Gizmos.DrawLine(new Vector3(0, i, 0), new Vector3(activeLayer.Width, i, 0));
 		}
 
 		// Draw vertical line
-		for (int i = 0; i < matrix.Width + 1; i++) {
+		for (int i = 0; i < activeLayer.Width + 1; i++) {
 			Gizmos.color = gridLineColor;
-			Gizmos.DrawLine(new Vector3(i, 0, 0), new Vector3(i, -matrix.Height, 0));
+			Gizmos.DrawLine(new Vector3(i, 0, 0), new Vector3(i, -activeLayer.Height, 0));
 		}
 	}
 
@@ -45,7 +51,7 @@ public class VirtualGrid : MonoBehaviour
 
 	public bool IsMouseInGrid(int x, int y)
 	{
-		if (x >= matrix.Width || x < 0 || y >= matrix.Height || y < 0) 
+		if (x >= activeLayer.Width || x < 0 || y >= activeLayer.Height || y < 0) 
 			return false;
 		   
 		return true;
@@ -58,8 +64,8 @@ public class VirtualGrid : MonoBehaviour
 	/// <param name="y">The y coordinate.</param>
 	public void ActionDrawOneCube(int x, int y)
 	{
-		matrix.data[x, y] = brushInfo.selectingCubeType.ID;
-	}
+		activeLayer.Set(x, y, brushInfo.selectingCubeType.ID);
+	} 
 	//------------------------------------------------
 
 	public void ActionDrawOneCube(Vector2Int coord)
@@ -69,22 +75,63 @@ public class VirtualGrid : MonoBehaviour
 
 	public void ActionDrawOneRow(Vector2Int coord)
 	{
-		for (int x = 0; x < matrix.Width; x++) {
+		for (int x = 0; x < activeLayer.Width; x++) {
 			ActionDrawOneCube(x, coord.y);
 		}
 	}
 
 	public void ActionDrawOneColumn(Vector2Int coord)
 	{
-		for (int y = 0; y < matrix.Height; y++) {
+		for (int y = 0; y < activeLayer.Height; y++) {
 			ActionDrawOneCube(coord.x, y);
 		}
 	}
 
-	public void Generate()
+	//------------------------------------------------
+	public void OnSelectLayer(Layer2D target)
+	{
+		// Find target in layers list
+		foreach (Layer2D layer in allLayers)
+			if (layer.GetInstanceID() == target.GetInstanceID()) {
+				activeLayer = layer;
+			}
+	}
+
+
+	//------------------------------------------------
+
+	public void Export()
 	{
 		// using data to gen a JSON file here
+		LayersDataJSON dataToExport = new LayersDataJSON(allLayers);
 
-		Debug.Log("Generate: haven't implement yet!");
+		string json = JsonUtility.ToJson(dataToExport);
+		string path = Application.dataPath + "/Resources/" + exportPathFromResources + ".json";
+		Debug.Log("AssetPath:" + path);
+		File.WriteAllText(path, json);
+#if UNITY_EDITOR
+		UnityEditor.AssetDatabase.Refresh();
+#endif
+
+	}
+}
+
+
+public class LayersDataJSON
+{
+	[System.Serializable]
+	public struct IntArray
+	{
+		public int[] data;
+	}
+	public IntArray[] layers;
+
+	public LayersDataJSON(Layer2D[] ls)
+	{
+		layers = new IntArray[ls.Length];
+		for (int i = 0; i < ls.Length; i++) {
+			layers[i].data = ls[i].GetAll();
+		}
+
 	}
 }

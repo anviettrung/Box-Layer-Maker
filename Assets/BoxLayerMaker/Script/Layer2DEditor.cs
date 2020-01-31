@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(MatrixInt2D))]
-public class MatrixInt2DEditor : Editor
+[CustomEditor(typeof(Layer2D))]
+public class Layer2DEditor : Editor
 {
-	MatrixInt2D mTarget;
+	Layer2D mTarget;
 
 	private void Awake()
 	{
-		mTarget = (MatrixInt2D)target;
+		mTarget = (Layer2D)target;
 	}
 
 	public override void OnInspectorGUI()

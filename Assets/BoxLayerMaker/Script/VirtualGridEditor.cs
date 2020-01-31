@@ -44,8 +44,8 @@ public class VirtualGridEditor : Editor
 	{
 		base.OnInspectorGUI();
 
-		if (GUILayout.Button("Generate")) {
-			mTarget.Generate();
+		if (GUILayout.Button("Export")) {
+			mTarget.Export();
 		}
 	}
 }
